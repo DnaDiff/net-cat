@@ -44,7 +44,7 @@ var pinguDead = []string{
 	"   fZP    goby    SMMb",
 	"   HZM            MMMM",
 	"   FqM           MMMM",
-	" __| \".  𒍼   |\\dS\"qML",
+	" __| \".  𒍼      |\\dS\"qML",
 	" |    `.        | `' \\Zq",
 	"_)      \\.___.,|     .'",
 	"\\____   )MMMMMP|   .'",

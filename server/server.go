@@ -6,16 +6,11 @@ import (
 	"os"
 )
 
-const (
-	CONN_HOST = "localhost"
-	CONN_TYPE = "tcp"
-)
-
 func StartServer(CONN_PORT string) {
 	var clients []Client
 	var messageLog MessageLog
 
-	ln, err := net.Listen(CONN_TYPE, CONN_HOST+":"+CONN_PORT)
+	ln, err := net.Listen("tcp", ":"+CONN_PORT)
 	if err != nil {
 		fmt.Println("Error listening:", err.Error())
 		os.Exit(1)
@@ -23,7 +18,7 @@ func StartServer(CONN_PORT string) {
 	// Close the listener when the application closes
 	defer ln.Close()
 
-	fmt.Println("Listening on " + CONN_HOST + ":" + CONN_PORT)
+	fmt.Println("Listening on " + ":" + CONN_PORT)
 	for {
 		// Accept incoming connections
 		conn, err := ln.Accept()

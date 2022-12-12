@@ -51,7 +51,7 @@ var pinguDead = []string{
 	"     `-'       `--'",
 }
 
-func PinguSender(conn net.Conn, isAlive bool) {
+func pinguSender(conn net.Conn, isAlive bool) {
 	if isAlive {
 		for _, e := range pinguAlive {
 			sendMessage(conn, e+"\n")

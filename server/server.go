@@ -7,7 +7,7 @@ import (
 )
 
 func StartServer(CONN_PORT string) {
-	var clients []Client
+	var clients ClientList
 	var messageLog MessageLog
 
 	ln, err := net.Listen("tcp", ":"+CONN_PORT)
@@ -27,6 +27,6 @@ func StartServer(CONN_PORT string) {
 			continue
 		}
 		// Handle connections in a new goroutine
-		go handleClient(&clients, &messageLog, conn)
+		go clientHandler(&clients, &messageLog, conn)
 	}
 }

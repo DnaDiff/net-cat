@@ -30,6 +30,7 @@ func receiveMessage(conn net.Conn) string {
 	} else if rawMessage == 0 {
 		return "exit"
 	}
+	sendMessage(conn, "\r\033[1A\033[2K")
 	return strings.ReplaceAll(string(buf[:rawMessage]), "\n", "")
 }
 
@@ -40,9 +41,6 @@ func sendMessage(conn net.Conn, message string) {
 func broadcastMessage(clients *ClientList, messageLog *MessageLog, messageUsername string, message string) {
 	messageLog.AddMessage(fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message))
 	for _, client := range *clients {
-		if client.username == messageUsername {
-			sendMessage(client.conn, "\r\033[1A\033[2K")
-		}
 		sendMessage(client.conn, fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message+"\n"))
 	}
 }

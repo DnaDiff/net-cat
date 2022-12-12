@@ -22,7 +22,6 @@ import (
 
 var CONN_PORT = "8989"
 
-// TODO: Sort functions into their own categories
 // TODO: Fix syncing:
 // - When a client connects, send all previous messages to the client
 // - When a client disconnects, send a message to all other clients that the client disconnected

@@ -15,7 +15,7 @@ type ClientList []Client
 
 func clientHandler(clients *ClientList, messageLog *MessageLog, conn net.Conn) {
 	// Onboarding process
-	PinguSender(conn, true)
+	pinguSender(conn, true)
 	sendMessage(conn, welcomeMessage)
 
 	fmt.Println("Incoming user...")
@@ -40,7 +40,7 @@ func clientHandler(clients *ClientList, messageLog *MessageLog, conn net.Conn) {
 			if message == "exit" {
 				fmt.Println("User " + username + " disconnected from the TCP Chat.")
 				sendMessage(conn, disconnectedMessage)
-				PinguSender(conn, false)
+				pinguSender(conn, false)
 
 				clients.removeClient(conn.RemoteAddr().String())
 				conn.Close()

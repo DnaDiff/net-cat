@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+const CHAT_FORMAT = "[%s][%s]: %s"
+
 // MessageQueue is a shared message queue among all clients.
 type MessageLog struct {
 	Messages []string
@@ -32,12 +34,15 @@ func receiveMessage(conn net.Conn) string {
 }
 
 func sendMessage(conn net.Conn, message string) {
-	conn.Write([]byte(message + "\n"))
+	conn.Write([]byte(message))
 }
 
-func broadcastMessage(clients *[]Client, messageLog *MessageLog, message string) {
-	messageLog.AddMessage(message)
+func broadcastMessage(clients *ClientList, messageLog *MessageLog, messageUsername string, message string) {
+	messageLog.AddMessage(fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message))
 	for _, client := range *clients {
-		sendMessage(client.conn, message)
+		if client.username == messageUsername {
+			sendMessage(client.conn, "\r\033[1A\033[2K")
+		}
+		sendMessage(client.conn, fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message+"\n"))
 	}
 }

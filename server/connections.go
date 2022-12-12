@@ -15,7 +15,7 @@ func handleClient(clients *[]Client, messageLog *MessageLog, conn net.Conn) {
 	// Accept the user into the chat
 	addClient(clients, username, conn.RemoteAddr().String(), conn)
 
-	conn.Write([]byte(connectedMessage))
+	conn.Write([]byte(fmt.Sprintf(connectedMessage, username)))
 
 	fmt.Println("User '" + username + "' with IP address '" + conn.RemoteAddr().String() + "' connected to the TCP Chat.")
 
@@ -34,7 +34,7 @@ func handleClient(clients *[]Client, messageLog *MessageLog, conn net.Conn) {
 				conn.Close()
 				break
 			} else {
-				broadcastMessage(clients, messageLog, "["+username+"]:"+message)
+				broadcastMessage(clients, messageLog, "["+username+"]: "+message)
 			}
 			fmt.Println("[" + username + "]: " + message)
 		}

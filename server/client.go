@@ -21,10 +21,7 @@ var mutex = &sync.Mutex{}
 
 func clientHandler(clients *ClientList, messageLog *MessageLog, conn net.Conn) {
 
-	if len(*clients) >= 10 {
-		pinguSender(conn, false)
-		sendMessage(conn, "Pingu is sad to tell you that the chat is full. Please come back to play with Pingu at a later time.")
-		conn.Close()
+	if serverFull(clients, conn) {
 		return
 	}
 
@@ -84,6 +81,16 @@ func (clients *ClientList) RemoveClient(remoteIP string) {
 			*clients = append((*clients)[:i], (*clients)[i+1:]...)
 		}
 	}
+}
+
+func serverFull(clients *ClientList, conn net.Conn) bool {
+	if len(*clients) >= MAX_CLIENTS {
+		pinguSender(conn, false)
+		sendMessage(conn, "Pingu is sad to tell you that the chat is full. Please come back to play with Pingu at a later time.")
+		conn.Close()
+		return true
+	}
+	return false
 }
 
 func randomizeColor() string {

@@ -44,7 +44,7 @@ func TestServer(t *testing.T) {
 		conn.Close()
 	}
 
-	time.Sleep(5)
+	time.Sleep(5 * time.Second)
 }
 
 // Test case for user connecting, sending a message, and disconnecting

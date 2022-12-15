@@ -22,13 +22,6 @@ import (
 
 var CONN_PORT = "8989"
 
-// TODO: Fix syncing:
-// - When a client connects, send all previous messages to the client
-// - When a client disconnects, send a message to all other clients that the client disconnected
-// - When a client sends a message, send the message to all other clients:
-//   - The message should be in the format: [time][username]:[message]
-// - Syncing should be done in a separate goroutine
-
 func main() {
 	if len(os.Args) == 2 {
 		CONN_PORT = os.Args[1]

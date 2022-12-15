@@ -86,7 +86,7 @@ func (clients *ClientList) RemoveClient(remoteIP string) {
 func serverFull(clients *ClientList, conn net.Conn) bool {
 	if len(*clients) >= MAX_CLIENTS {
 		pinguSender(conn, false)
-		sendMessage(conn, "Pingu is sad to tell you that the chat is full. Please come back to play with Pingu at a later time.")
+		sendMessage(conn, MESSAGE_FULL)
 		conn.Close()
 		return true
 	}

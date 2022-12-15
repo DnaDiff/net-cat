@@ -83,10 +83,15 @@ func TestClient(t *testing.T) {
 
 	// Run the command and wait for it to finish
 	err = cmd.Run()
-	if err != nil && err.Error() != "exit status 1" {
-		t.Errorf("Error running command: %v", err)
+	if err != nil {
+		if err.Error() == "exit status 1" {
+			// Connection was closed before sending messages
+			t.Errorf("Connection closed before sending messages: %v", err)
+		} else {
+			// Other error occurred
+			t.Errorf("Error running command: %v", err)
+		}
 	}
-
 	time.Sleep(8 * time.Second)
 }
 

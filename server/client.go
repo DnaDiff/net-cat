@@ -27,7 +27,7 @@ func clientHandler(clients *ClientList, messageLog *MessageLog, conn net.Conn) {
 
 	// Onboarding process
 	pinguSender(conn, true)
-	sendMessage(conn, welcomeMessage)
+	sendMessage(conn, MESSAGE_WELCOME)
 
 	fmt.Println("Incoming user...")
 	username := randomizeColor() + receiveMessage(conn) + "\033[0m"
@@ -37,7 +37,7 @@ func clientHandler(clients *ClientList, messageLog *MessageLog, conn net.Conn) {
 	clients.AddClient(username, conn.RemoteAddr().String(), conn)
 	mutex.Unlock()
 
-	sendMessage(conn, fmt.Sprintf(connectedMessage, username))
+	sendMessage(conn, fmt.Sprintf(MESSAGE_CONNECTED, username))
 
 	// Print history for the user
 	for _, message := range messageLog.Messages {
@@ -52,7 +52,7 @@ func clientHandler(clients *ClientList, messageLog *MessageLog, conn net.Conn) {
 		for {
 			message := receiveMessage(conn)
 			if message == "exit" {
-				sendMessage(conn, disconnectedMessage)
+				sendMessage(conn, MESSAGE_DISCONNECTED)
 				pinguSender(conn, false)
 
 				mutex.Lock()

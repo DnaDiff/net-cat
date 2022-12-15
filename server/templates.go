@@ -8,9 +8,9 @@ import (
 // Message templates for the client
 
 const (
-	welcomeMessage      = "Welcome to the TCP Chat!\nUsername: "
-	connectedMessage    = "\033[H\033[2JWe are glad to have you here, %s!\nYou are now connected to the TCP Chat.\n"
-	disconnectedMessage = "You have been disconnected from the TCP Chat.\nPingu is sad to see you go :(\nPingu will miss you!\nPingu will cry!\nPingu will die!\nPress [ENTER] to leave.\n"
+	MESSAGE_WELCOME      = "Welcome to the TCP Chat!\nUsername: "
+	MESSAGE_CONNECTED    = "\033[H\033[2JWe are glad to have you here, %s!\nYou are now connected to the TCP Chat.\n"
+	MESSAGE_DISCONNECTED = "You have been disconnected from the TCP Chat.\nPingu is sad to see you go :(\nPingu will miss you!\nPingu will cry!\nPingu will die!\nPress [ENTER] to leave.\n"
 )
 
 var pinguAlive = []string{

@@ -36,5 +36,9 @@ func main() {
 		fmt.Println("[USAGE]: ./TCPChat $port")
 		os.Exit(1)
 	}
-	server.StartServer(CONN_PORT)
+	err := server.StartServer(CONN_PORT)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

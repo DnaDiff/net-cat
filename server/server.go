@@ -3,7 +3,6 @@ package server
 import (
 	"fmt"
 	"net"
-	"os"
 )
 
 const (
@@ -12,27 +11,42 @@ const (
 	MAX_CLIENTS = 10
 )
 
-func StartServer(CONN_PORT string) {
+var isRunning bool = false
+var ln net.Listener
+
+func StartServer(CONN_PORT string) error {
 	var clients ClientList
 	var messageLog MessageLog
 
-	ln, err := net.Listen(CONN_TYPE, ":"+CONN_PORT)
+	var err error // Prevent shadowing of ln below
+	ln, err = net.Listen(CONN_TYPE, ":"+CONN_PORT)
 	if err != nil {
-		fmt.Println("Error listening:", err.Error())
-		os.Exit(1)
+		return err
 	}
 	// Close the listener when the application closes
 	defer ln.Close()
 
 	fmt.Println("Listening on " + ":" + CONN_PORT)
-	for {
-		// Accept incoming connections
+	isRunning = true
+	for isRunning {
+		// Pause the loop and wait for incoming connections to accept
 		conn, err := ln.Accept()
 		if err != nil {
+			// Prevent shutdown-related errors
+			if !isRunning {
+				break
+			}
 			fmt.Println("Error accepting: ", err.Error())
 			continue
 		}
 		// Handle connections in a new goroutine
 		go clientHandler(&clients, &messageLog, conn)
 	}
+	fmt.Println("Server stopped")
+	return nil
+}
+
+func StopServer() {
+	isRunning = false
+	ln.Close()
 }

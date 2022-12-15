@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"math/rand"
 	"net"
 	"strconv"
 	"sync"
@@ -107,6 +106,7 @@ func serverFull(clientList *ClientList, conn net.Conn) bool {
 }
 
 func randomizeColor() string {
-	rand.Seed(time.Now().UnixNano())
-	return "\033[38;5;" + strconv.Itoa(rand.Intn(230)) + "m"
+	randSeed := time.Now().UnixNano()
+	randSeed = randSeed % int64(230) // int64 for more randomness due to UnixNano() being int64
+	return "\033[38;5;" + strconv.Itoa(int(randSeed)) + "m"
 }

@@ -38,11 +38,11 @@ func sendMessage(conn net.Conn, message string) {
 	conn.Write([]byte(message))
 }
 
-func (clients *ClientList) BroadcastMessage(messageLog *MessageLog, messageUsername string, message string) {
+func (clientList *ClientList) BroadcastMessage(messageLog *MessageLog, messageUsername string, message string) {
 	mutex.Lock()
 	messageLog.AddMessage(fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message))
 	mutex.Unlock()
-	for _, client := range *clients {
+	for _, client := range clientList.clients {
 		sendMessage(client.conn, fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message+"\n"))
 		// sendMessage(client.conn, client.username+"> ")
 	}

@@ -20,16 +20,16 @@ import (
 	"github.com/DnaDiff/net-cat/server"
 )
 
-var CONN_PORT = "8989"
+var port = "8989"
 
 func main() {
 	if len(os.Args) == 2 {
-		CONN_PORT = os.Args[1]
+		port = os.Args[1]
 	} else if len(os.Args) > 2 {
 		fmt.Println("[USAGE]: ./TCPChat $port")
 		os.Exit(1)
 	}
-	err := server.StartServer(CONN_PORT)
+	err := server.StartServer(port)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

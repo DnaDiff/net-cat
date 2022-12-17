@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"strings"
 )
@@ -27,7 +28,7 @@ func receiveMessage(conn net.Conn) string {
 	rawMessage, err := conn.Read(buf)
 	if err != nil && rawMessage != 0 {
 		fmt.Println("Error reading:", err.Error())
-	} else if rawMessage == 0 {
+	} else if err == io.EOF {
 		return "/exit"
 	}
 	sendMessage(conn, "\r\033[1A\033[2K")

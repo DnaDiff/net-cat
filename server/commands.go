@@ -23,7 +23,7 @@ var commandHelp = Command{
 			// Print "[color]/[name] - [description]"
 			sendMessage(client.conn, fmt.Sprintf("/%v \033[1;30m- %v\033[0m\n", command.Name, command.Description))
 		}
-		return false
+		return Exit(false)
 	},
 }
 
@@ -39,7 +39,7 @@ var commandName = Command{
 		} else {
 			sendMessage(client.conn, "Invalid usage: "+strings.TrimSuffix(MESSAGE_USERNAME_ERROR, "Username: "))
 		}
-		return false
+		return Exit(false)
 	},
 }
 
@@ -55,7 +55,7 @@ var commandExit = Command{
 		client.conn.Close()
 		fmt.Println("User '" + client.username + "' disconnected from the TCP Chat.")
 		clientList.BroadcastMessage(messageLog, client.username, "\033[31mhas left the chat.\033[0m")
-		return true
+		return Exit(true)
 	},
 }
 
@@ -68,7 +68,7 @@ func commandHandler(clientList *ClientList, client *Client, messageLog *MessageL
 	} else {
 		sendMessage(client.conn, MESSAGE_HELP)
 	}
-	return false
+	return Exit(false)
 }
 
 func initCommands() map[string]Command {

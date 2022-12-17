@@ -134,5 +134,5 @@ func clientHandler(clientList *ClientList, messageLog *MessageLog, conn net.Conn
 	clientList.BroadcastMessage(messageLog, username, "\033[32mhas joined the chat.\033[0m")
 
 	// Listen for incoming messages
-	go inputListener(clientList, client, messageLog)
+	inputListener(clientList, client, messageLog)
 }

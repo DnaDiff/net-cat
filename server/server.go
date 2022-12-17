@@ -18,7 +18,12 @@ func StartServer(port string) error {
 	var clientList ClientList
 	var messageLog MessageLog
 
-	var err error // Prevent shadowing of ln below
+	logger, err := enableLogging()
+	if err != nil {
+		return err
+	}
+	defer logger.Close()
+
 	ln, err = net.Listen(CONN_TYPE, ":"+port)
 	if err != nil {
 		return err

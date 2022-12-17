@@ -9,7 +9,7 @@ import (
 
 const (
 	MESSAGE_WELCOME        = "Welcome to the TCP Chat!\nUsername: "
-	MESSAGE_CONNECTED      = "\033[H\033[2JWe are glad to have you here, %s!\nYou are now connected to the TCP Chat.\nTo disconnect, type /exit.\n\n"
+	MESSAGE_CONNECTED      = "\033[H\033[2JWe are glad to have you here, %s!\nYou are now connected to the TCP Chat.\nTo disconnect, type /exit.\n"
 	MESSAGE_DISCONNECTED   = "You have been disconnected from the TCP Chat.\nPingu is sad to see you go :(\nPingu will miss you!\nPingu will cry!\nPingu will die!\nPress [ENTER] to leave.\n"
 	MESSAGE_FULL           = "Pingu is sad to tell you that the chat is full. Please come back to play with Pingu at a later time.\nPress [ENTER] to leave.\n"
 	MESSAGE_USERNAME_ERROR = "Your username has to contain at least three valid letters.\nUsername: "

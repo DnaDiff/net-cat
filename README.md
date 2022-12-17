@@ -26,7 +26,7 @@ Open your terminal, find the net-cat folder and type `go run .`
 
 This will start the net-cat program on port 8989.
 
-If you want to run this on a different port then type go run . [preferred port]
+If you want to run this on a different port then type `go run . [preferred port]`
 
 - Example one `go run .`
   Output: `Listening on :8989`
@@ -36,7 +36,11 @@ If you want to run this on a different port then type go run . [preferred port]
 
 To connect to the chat open a new terminal window and type `nc [ip address] [port]`
 
-To exit the chat type `exit`
+To view available commands, type `/help`
+
+To change your username, type `/name <new_name>`
+
+To exit the chat type `/exit`
 
 Following the same examples above.
 
@@ -44,7 +48,7 @@ Following the same examples above.
 
 - Example two `nc 17.6.126.345 80`
 
-- Exit the program `exit`
+- Exit the program `/exit`
 
 ## ⛏️ Built Using <a name = "built_using"></a>
 

@@ -31,11 +31,13 @@ var commandName = Command{
 	Name:        "name",
 	Description: "Change username: /name <new_name>",
 	Exec: func(clientList *ClientList, client *Client, messageLog *MessageLog, args []string) Exit {
-		if len(args) > 0 {
-			previousUsername := client.username
-			newUsername := strings.Join(args, " ")
+		previousUsername := client.username
+		newUsername := strings.Join(args, " ")
+		if len(args) > 0 && validNameBool(newUsername) {
 			client.username = randomizeColor() + newUsername + "\033[0m"
 			clientList.BroadcastMessage(messageLog, "\033[33mServer\033[0m", fmt.Sprintf("\033[33m%v \033[33mis now known as %v", previousUsername, client.username))
+		} else {
+			sendMessage(client.conn, "Invalid usage: "+strings.TrimSuffix(MESSAGE_USERNAME_ERROR, "Username: "))
 		}
 		return false
 	},

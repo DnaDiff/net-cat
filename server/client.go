@@ -3,8 +3,8 @@ package server
 import (
 	"fmt"
 	"net"
+	"strings"
 	"sync"
-	"time"
 )
 
 type Client struct {
@@ -20,67 +20,16 @@ type ClientList struct {
 
 var mutex = &sync.Mutex{}
 
-func clientHandler(clientList *ClientList, messageLog *MessageLog, conn net.Conn) {
-
-	if serverFull(clientList, conn) {
-		return
-	}
-
-	// Onboarding process
-	pinguSender(conn, true)
-	sendMessage(conn, MESSAGE_WELCOME)
-
-	mutex.Lock()
-	clientList.count++
-	mutex.Unlock()
-
-	fmt.Println("Incoming user...")
-	username := randomizeColor() + receiveMessage(conn) + "\033[0m"
-
-	// Accept the user into the chat
-
-	clientList.AddClient(username, conn.RemoteAddr().String(), conn)
-
-	sendMessage(conn, fmt.Sprintf(MESSAGE_CONNECTED, username))
-
-	// Print history for the user
-	for _, message := range messageLog.Messages {
-		sendMessage(conn, message+"\n")
-	}
-
-	fmt.Println("User '" + username + "' with IP address '" + conn.RemoteAddr().String() + "' connected to the TCP Chat.")
-	clientList.BroadcastMessage(messageLog, username, "\033[32mhas joined the chat.\033[0m")
-
-	// Listen for incoming messages
-	go func() {
-		for {
-			message := receiveMessage(conn)
-			if message == "exit" {
-				sendMessage(conn, MESSAGE_DISCONNECTED)
-				pinguSender(conn, false)
-
-				clientList.RemoveClient(conn.RemoteAddr().String())
-
-				conn.Close()
-				fmt.Println("User '" + username + "' disconnected from the TCP Chat.")
-				clientList.BroadcastMessage(messageLog, username, "\033[31mhas left the chat.\033[0m")
-				break
-			} else if message != "" {
-				fmt.Printf(CHAT_FORMAT, getCurrentTime(), username, message+"\n")
-				clientList.BroadcastMessage(messageLog, username, message)
-			}
-		}
-	}()
-}
-
-func (clientList *ClientList) AddClient(username string, remoteIP string, conn net.Conn) {
+func (clientList *ClientList) AddClient(username string, remoteIP string, conn net.Conn) *Client {
+	client := &Client{username, remoteIP, conn}
 	mutex.Lock()
 	fmt.Println(*clientList)
-	clientList.clients = append(clientList.clients, Client{username, remoteIP, conn})
+	clientList.clients = append(clientList.clients, *client)
 	// clientList.count++ // We normally increment the count before AddClient is run, to catch partial connections
 	mutex.Unlock()
 
 	fmt.Println(*clientList)
+	return client
 }
 
 func (clientList *ClientList) RemoveClient(remoteIP string) {
@@ -104,29 +53,67 @@ func serverFull(clientList *ClientList, conn net.Conn) bool {
 	return false
 }
 
-func randomizeColor() string {
-	randSeed := time.Now().UnixNano()
-	randSeed = randSeed % int64(230) // int64 for more randomness due to UnixNano() being int64
-	return "\033[38;5;" + itoa(int(randSeed)) + "m"
+func inputListener(clientList *ClientList, client *Client, messageLog *MessageLog) {
+	for {
+		// Store the message
+		message := receiveMessage(client.conn)
+
+		// Check if it is a command, run the command, break if it is an exit command
+		// If it is not a command and the message is not empty, broadcast it
+		if strings.HasPrefix(message, "/") {
+			if commandHandler(clientList, client, messageLog, message[1:]) {
+				break
+			}
+		} else if message != "" {
+			clientList.BroadcastMessage(messageLog, client.username, message)
+		}
+	}
 }
 
-func itoa(n int) string {
-	result := ""
-	isNegative := ""
+func usernameCheck(conn net.Conn) string {
+	username := ""
+	for {
+		username = receiveMessage(conn)
+		if len(username) >= 3 && strings.ContainsAny(username, "abcdefghijklmnopqrstuvwxyz") {
+			username = randomizeColor() + username + "\033[0m"
+			break
+		} else {
+			sendMessage(conn, MESSAGE_USERNAME_ERROR)
+		}
+	}
+	return username
+}
 
-	if n < 0 {
-		n *= 1
-		isNegative = "-"
+func clientHandler(clientList *ClientList, messageLog *MessageLog, conn net.Conn) {
+
+	if serverFull(clientList, conn) {
+		return
 	}
 
-	if n == 0 {
-		return result
+	// Onboarding process
+	pinguSender(conn, true)
+	sendMessage(conn, MESSAGE_WELCOME)
+
+	mutex.Lock()
+	clientList.count++
+	mutex.Unlock()
+
+	fmt.Println("Incoming user...")
+	username := usernameCheck(conn)
+	// Accept the user into the chat
+
+	client := clientList.AddClient(username, conn.RemoteAddr().String(), conn)
+
+	sendMessage(conn, fmt.Sprintf(MESSAGE_CONNECTED, username))
+
+	// Print history for the user
+	for _, message := range messageLog.Messages {
+		sendMessage(conn, message+"\n")
 	}
 
-	for n > 0 {
-		result = string(rune(n%10-'0')) + result
-		n /= 10
-	}
+	fmt.Println("User '" + username + "' with IP address '" + conn.RemoteAddr().String() + "' connected to the TCP Chat.")
+	clientList.BroadcastMessage(messageLog, username, "\033[32mhas joined the chat.\033[0m")
 
-	return isNegative + result
+	// Listen for incoming messages
+	go inputListener(clientList, client, messageLog)
 }

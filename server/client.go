@@ -23,12 +23,10 @@ var mutex = &sync.Mutex{}
 func (clientList *ClientList) AddClient(username string, remoteIP string, conn net.Conn) *Client {
 	client := &Client{username, remoteIP, conn}
 	mutex.Lock()
-	fmt.Println(*clientList)
 	clientList.clients = append(clientList.clients, *client)
 	// clientList.count++ // We normally increment the count before AddClient is run, to catch partial connections
 	mutex.Unlock()
 
-	fmt.Println(*clientList)
 	return client
 }
 
@@ -70,18 +68,30 @@ func inputListener(clientList *ClientList, client *Client, messageLog *MessageLo
 	}
 }
 
-func usernameCheck(conn net.Conn) string {
+func usernameCheck(conn net.Conn) (string, error) {
 	username := ""
 	for {
 		username = receiveMessage(conn)
-		if len(username) >= 3 && strings.ContainsAny(username, "abcdefghijklmnopqrstuvwxyz") {
+		// If the client was forcibly disconnected before receiving a name, don't name it /exit
+		if strings.Contains(username, "/exit") {
+			return "/exit", fmt.Errorf("Client terminated connection")
+		}
+		// If the username is three or more valid letters, pass
+		if validNameBool(username) {
 			username = randomizeColor() + username + "\033[0m"
 			break
 		} else {
 			sendMessage(conn, MESSAGE_USERNAME_ERROR)
 		}
 	}
-	return username
+	return username, nil
+}
+
+func validNameBool(username string) bool {
+	if len(username) >= 3 && strings.ContainsAny(username, "abcdefghijklmnopqrstuvwxyz") {
+		return true
+	}
+	return false
 }
 
 func clientHandler(clientList *ClientList, messageLog *MessageLog, conn net.Conn) {
@@ -99,7 +109,16 @@ func clientHandler(clientList *ClientList, messageLog *MessageLog, conn net.Conn
 	mutex.Unlock()
 
 	fmt.Println("Incoming user...")
-	username := usernameCheck(conn)
+	username, err := usernameCheck(conn)
+	if err != nil {
+		mutex.Lock()
+		clientList.count--
+		mutex.Unlock()
+
+		conn.Close()
+		fmt.Println("User aborted")
+		return
+	}
 	// Accept the user into the chat
 
 	client := clientList.AddClient(username, conn.RemoteAddr().String(), conn)

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-const CHAT_FORMAT = "[%s][%s]: %s"
+const CHAT_FORMAT = "[%s][%s]: %s" // [date + time][username]: [message]
 
 // MessageQueue is a shared message queue among all clients.
 type MessageLog struct {
@@ -28,7 +28,7 @@ func receiveMessage(conn net.Conn) string {
 	if err != nil && rawMessage != 0 {
 		fmt.Println("Error reading:", err.Error())
 	} else if rawMessage == 0 {
-		return "exit"
+		return "/exit"
 	}
 	sendMessage(conn, "\r\033[1A\033[2K")
 	return strings.ReplaceAll(string(buf[:rawMessage]), "\n", "")
@@ -39,6 +39,7 @@ func sendMessage(conn net.Conn, message string) {
 }
 
 func (clientList *ClientList) BroadcastMessage(messageLog *MessageLog, messageUsername string, message string) {
+	fmt.Println(fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message))
 	mutex.Lock()
 	messageLog.AddMessage(fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message))
 	mutex.Unlock()

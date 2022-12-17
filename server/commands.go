@@ -64,6 +64,7 @@ func commandHandler(clientList *ClientList, client *Client, messageLog *MessageL
 	initCommands()
 	args := strings.Split(input, " ")
 	if command, ok := commands[args[0]]; ok {
+		fmt.Printf("[%v][%v] executed commmand: /%v\n", getCurrentTime(), client.username, strings.Join(args, " "))
 		return command.Exec(clientList, client, messageLog, args[1:])
 	} else {
 		sendMessage(client.conn, MESSAGE_HELP)

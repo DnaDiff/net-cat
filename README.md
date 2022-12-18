@@ -1,3 +1,4 @@
+
 # net-cat
 
 ## Table of Contents
@@ -19,14 +20,16 @@ Download the repository to your local machine.
 ### Prerequisites
 
 - [Go](https://go.dev/) 1.19
+- A **Unix-based** terminal
 
 ### Usage
 
-Open your terminal, find the net-cat folder and type `go run .`
+#### Server
+Open your terminal, find the net-cat folder and run the command `go run .`
 
 This will start the net-cat program on port 8989.
 
-If you want to run this on a different port then type `go run . [preferred port]`
+If you want to run this on a different port then run `go run . [preferred port]` instead.
 
 - Example one `go run .`
   Output: `Listening on :8989`
@@ -34,7 +37,15 @@ If you want to run this on a different port then type `go run . [preferred port]
 - Example two `go run . 80`
   Output: `Listening on :80`
 
-To connect to the chat open a new terminal window and type `nc [ip address] [port]`
+You can also enable logging of all messages and server output by including the flag `--log`
+
+- Example one `go run . 8080 --log`
+- Example two `go run . --log`
+
+These logs should appear inside a `/logs/` folder inside the project location.
+
+#### Client
+Connect to the chat by opening a new **Unix-based** terminal window and run `nc [ip address] [port]`
 
 To view available commands, type `/help`
 

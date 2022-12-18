@@ -33,7 +33,7 @@ func main() {
 }
 
 func getArgs() {
-	if strings.Contains(strings.Join(os.Args, " "), "--save") {
+	if strings.Contains(strings.Join(os.Args, " "), "--log") {
 		logFlag = true
 		fmt.Println("Logging enabled")
 	}
@@ -41,6 +41,6 @@ func getArgs() {
 	if len(os.Args) == 2 && !logFlag {
 		port = os.Args[1]
 	} else if len(os.Args) >= 3 && !logFlag {
-		log.Fatal("[USAGE]: ./TCPChat $port [--save]")
+		log.Fatal("[USAGE]: ./TCPChat $port [--log]")
 	}
 }

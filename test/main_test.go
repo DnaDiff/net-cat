@@ -25,7 +25,7 @@ func TestConnections(t *testing.T) {
 func TestServer(t *testing.T) {
 	// Start the server in a goroutine
 	go func() {
-		err := server.StartServer(CONN_PORT)
+		err := server.StartServer(CONN_PORT, false)
 		if err != nil {
 			t.Errorf("Error starting server: %v", err)
 		}

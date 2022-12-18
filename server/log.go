@@ -28,6 +28,7 @@ func enableLogging() (os.File, error) {
 		_, err = io.Copy(f, r)
 		if err != nil {
 			fmt.Println(err)
+			f.Close()
 			return
 		}
 	}()

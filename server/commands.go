@@ -53,7 +53,7 @@ var commandExit = Command{
 		clientList.RemoveClient(client.conn.RemoteAddr().String())
 
 		client.conn.Close()
-		fmt.Println("User '" + client.username + "' disconnected from the TCP Chat.")
+		fmt.Fprintln(mw, "User '"+client.username+"' disconnected from the TCP Chat.")
 		clientList.BroadcastMessage(messageLog, client.username, "\033[31mhas left the chat.\033[0m")
 		return Exit(true)
 	},
@@ -64,7 +64,7 @@ func commandHandler(clientList *ClientList, client *Client, messageLog *MessageL
 	initCommands()
 	args := strings.Split(input, " ")
 	if command, ok := commands[args[0]]; ok {
-		fmt.Printf("[%v][%v] executed commmand: /%v\n", getCurrentTime(), client.username, strings.Join(args, " "))
+		fmt.Fprintf(mw, "[%v][%v] executed commmand: /%v\n", getCurrentTime(), client.username, strings.Join(args, " "))
 		return command.Exec(clientList, client, messageLog, args[1:])
 	} else {
 		sendMessage(client.conn, MESSAGE_HELP)

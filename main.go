@@ -15,23 +15,32 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"strings"
 
 	"github.com/DnaDiff/net-cat/server"
 )
 
 var port = "8989"
+var logFlag = false
 
 func main() {
-	if len(os.Args) == 2 {
-		port = os.Args[1]
-	} else if len(os.Args) > 2 {
-		fmt.Println("[USAGE]: ./TCPChat $port")
-		os.Exit(1)
+	getArgs()
+	if err := server.StartServer(port, logFlag); err != nil {
+		log.Fatal(err)
 	}
-	err := server.StartServer(port)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+}
+
+func getArgs() {
+	if strings.Contains(strings.Join(os.Args, " "), "--save") {
+		logFlag = true
+		fmt.Println("Logging enabled")
+	}
+
+	if len(os.Args) == 2 && !logFlag {
+		port = os.Args[1]
+	} else if len(os.Args) >= 3 && !logFlag {
+		log.Fatal("[USAGE]: ./TCPChat $port [--save]")
 	}
 }

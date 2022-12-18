@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net"
+	"os"
 )
 
 const (
@@ -14,12 +15,13 @@ const (
 var isRunning bool = false
 var ln net.Listener
 
-func StartServer(port string) error {
+func StartServer(port string, logFlag bool) error {
 	var clientList ClientList
 	var messageLog MessageLog
 
-	logger, err := enableLogging()
+	logger, err := logCheck(logFlag)
 	if err != nil {
+		logger.Close()
 		return err
 	}
 	defer logger.Close()
@@ -31,7 +33,7 @@ func StartServer(port string) error {
 	// Close the listener when the application closes
 	defer ln.Close()
 
-	fmt.Println("Listening on " + ":" + port)
+	fmt.Fprintln(mw, "Listening on "+":"+port)
 	isRunning = true
 	for isRunning {
 		// Pause the loop and wait for incoming connections to accept
@@ -41,17 +43,34 @@ func StartServer(port string) error {
 			if !isRunning {
 				break
 			}
-			fmt.Println("Error accepting: ", err.Error())
+			fmt.Fprintln(mw, "Error accepting: ", err.Error())
 			continue
 		}
 		// Handle connections in a new goroutine
 		go clientHandler(&clientList, &messageLog, conn)
 	}
-	fmt.Println("Server stopped")
+	fmt.Fprintln(mw, "Server stopped")
 	return nil
 }
 
 func StopServer() {
 	isRunning = false
 	ln.Close()
+}
+
+func logCheck(flag bool) (os.File, error) {
+	var logger os.File
+	var err error
+	if flag {
+		logger, err = enableLogging(true)
+		if err != nil {
+			return logger, err
+		}
+	} else {
+		logger, err = enableLogging(false)
+		if err != nil {
+			return logger, err
+		}
+	}
+	return logger, nil
 }

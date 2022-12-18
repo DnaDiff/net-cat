@@ -108,7 +108,7 @@ func clientHandler(clientList *ClientList, messageLog *MessageLog, conn net.Conn
 	clientList.count++
 	mutex.Unlock()
 
-	fmt.Println("Incoming user...")
+	fmt.Fprintln(mw, "Incoming user...")
 	username, err := usernameCheck(conn)
 	if err != nil {
 		mutex.Lock()
@@ -116,7 +116,7 @@ func clientHandler(clientList *ClientList, messageLog *MessageLog, conn net.Conn
 		mutex.Unlock()
 
 		conn.Close()
-		fmt.Println("User aborted")
+		fmt.Fprintln(mw, "User aborted")
 		return
 	}
 	// Accept the user into the chat
@@ -130,7 +130,7 @@ func clientHandler(clientList *ClientList, messageLog *MessageLog, conn net.Conn
 		sendMessage(conn, message+"\n")
 	}
 
-	fmt.Println("User '" + username + "' with IP address '" + conn.RemoteAddr().String() + "' connected to the TCP Chat.")
+	fmt.Fprintln(mw, "User '"+username+"' with IP address '"+conn.RemoteAddr().String()+"' connected to the TCP Chat.")
 	clientList.BroadcastMessage(messageLog, username, "\033[32mhas joined the chat.\033[0m")
 
 	// Listen for incoming messages

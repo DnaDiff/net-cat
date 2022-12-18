@@ -27,7 +27,7 @@ func receiveMessage(conn net.Conn) string {
 	// Read the incoming data into the buffer
 	rawMessage, err := conn.Read(buf)
 	if err != nil && rawMessage != 0 {
-		fmt.Println("Error reading:", err.Error())
+		fmt.Fprintln(mw, "Error reading:", err.Error())
 	} else if err == io.EOF {
 		return "/exit"
 	}
@@ -40,7 +40,7 @@ func sendMessage(conn net.Conn, message string) {
 }
 
 func (clientList *ClientList) BroadcastMessage(messageLog *MessageLog, messageUsername string, message string) {
-	fmt.Println(fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message))
+	fmt.Fprintln(mw, fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message))
 	mutex.Lock()
 	messageLog.AddMessage(fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message))
 	mutex.Unlock()

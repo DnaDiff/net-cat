@@ -1,3 +1,3 @@
 module github.com/DnaDiff/net-cat
 
-go 1.18
+go 1.19

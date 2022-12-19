@@ -21,6 +21,7 @@ func (q *MessageLog) AddMessage(message string) {
 	q.count++
 }
 
+// It reads the incoming data from the connection, and returns it as a string
 func receiveMessage(conn net.Conn) string {
 	// Make a buffer to hold incoming data
 	buf := make([]byte, 1024)
@@ -35,10 +36,12 @@ func receiveMessage(conn net.Conn) string {
 	return strings.ReplaceAll(string(buf[:rawMessage]), "\n", "")
 }
 
+// SendMessage writes the message to the connection.
 func sendMessage(conn net.Conn, message string) {
 	conn.Write([]byte(message))
 }
 
+// BroadcastMessage prints the message to the terminal, logs the message and sends it to all clients.
 func (clientList *ClientList) BroadcastMessage(messageLog *MessageLog, messageUsername string, message string) {
 	fmt.Fprintln(mw, fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message))
 	mutex.Lock()

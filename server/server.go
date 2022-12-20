@@ -16,13 +16,10 @@ var isRunning bool = false
 var ln net.Listener
 
 func StartServer(port string, logFlag bool) error {
-	var roomList = map[string]*Room{
-		"general": {
-			Name:     "general",
-			Clients:  []Client{},
-			Messages: []string{},
-		},
-	}
+	var roomList = make(map[string]*Room)
+
+	// Create the default room
+	CreateRoom(roomList, "#general")
 
 	logger, err := logCheck(logFlag)
 	if err != nil {
@@ -52,7 +49,7 @@ func StartServer(port string, logFlag bool) error {
 			continue
 		}
 		// Handle connections in a new goroutine
-		go clientHandler(roomList, roomList["general"], conn)
+		go clientHandler(roomList, roomList["#general"], conn)
 	}
 	fmt.Fprintln(mw, "Server stopped")
 	return nil

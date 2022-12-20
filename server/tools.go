@@ -1,8 +1,21 @@
 package server
 
 import (
+	"fmt"
+	"strings"
 	"time"
 )
+
+func toggleRoomName(name string) string {
+	if strings.HasPrefix(name, "\033[36m") && strings.HasSuffix(name, "\033[0m") {
+		return strings.TrimSuffix(strings.TrimPrefix(name, "\033[36m"), "\033[0m")
+	} else if !strings.HasPrefix(name, "\033[36m") && !strings.HasSuffix(name, "\033[0m") {
+		return "\033[36m" + name + "\033[0m"
+	} else {
+		fmt.Fprintf(mw, "Error: Could not toggle room name: %s", name)
+		return name
+	}
+}
 
 func randomizeColor() string {
 	randSeed := time.Now().UnixNano()

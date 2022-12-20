@@ -10,7 +10,7 @@ type Exit bool
 type Command struct {
 	Name        string
 	Description string
-	Exec        func(*Client, []string) Exit
+	Exec        func(client *Client, args []string) Exit
 }
 
 var commands = map[string]Command{}
@@ -21,7 +21,31 @@ var commandHelp = Command{
 	Exec: func(client *Client, args []string) Exit {
 		for _, command := range commands {
 			// Print "[color]/[name] - [description]"
-			sendMessage(client.conn, fmt.Sprintf("/%v \033[1;30m- %v\033[0m\n", command.Name, command.Description))
+			SendMessage(client.conn, fmt.Sprintf(MESSAGE_COMMAND_HELP, command.Name, command.Description))
+		}
+		return Exit(false)
+	},
+}
+
+var commandRoom = Command{
+	Name:        "room",
+	Description: "Switches the user's chatroom: /room <room_name>",
+	Exec: func(client *Client, args []string) Exit {
+		if len(args) == 1 {
+			client.SwitchRoom(args[0])
+		} else {
+			SendMessage(client.conn, MESSAGE_ERROR_USAGE_ROOM)
+		}
+		return Exit(false)
+	},
+}
+
+var commandRooms = Command{
+	Name:        "rooms",
+	Description: "Lists all rooms",
+	Exec: func(client *Client, args []string) Exit {
+		for _, room := range client.room.ParentList {
+			SendMessage(client.conn, fmt.Sprintf(MESSAGE_COMMAND_ROOMS, room.Name, len(room.Clients)))
 		}
 		return Exit(false)
 	},
@@ -35,9 +59,9 @@ var commandName = Command{
 		newUsername := strings.Join(args, " ")
 		if len(args) > 0 && validNameBool(newUsername) {
 			client.username = randomizeColor() + newUsername + "\033[0m"
-			client.room.AddMessage("\033[33mServer\033[0m", fmt.Sprintf("\033[33m%v \033[33mis now known as %v", previousUsername, client.username))
+			client.room.AddMessage(previousUsername, fmt.Sprintf(MESSAGE_ACTION_NAME, client.username))
 		} else {
-			sendMessage(client.conn, "Invalid usage: "+strings.TrimSuffix(MESSAGE_USERNAME_ERROR, "Username: "))
+			SendMessage(client.conn, "Invalid usage: "+strings.TrimSuffix(MESSAGE_ERROR_USERNAME, "Username: "))
 		}
 		return Exit(false)
 	},
@@ -47,13 +71,13 @@ var commandExit = Command{
 	Name:        "exit",
 	Description: "Disconnects the user from the server",
 	Exec: func(client *Client, args []string) Exit {
-		sendMessage(client.conn, MESSAGE_DISCONNECTED)
+		SendMessage(client.conn, MESSAGE_CLIENT_DISCONNECTED)
 		pinguSender(client.conn, false)
 
 		client.Disconnect()
 
 		fmt.Fprintln(mw, "User '"+client.username+"' disconnected from the TCP Chat.")
-		client.room.AddMessage(client.username, "\033[31mhas left the chat.\033[0m")
+		client.room.AddMessage(client.username, MESSAGE_ACTION_LEAVE)
 		return Exit(true)
 	},
 }
@@ -66,16 +90,18 @@ func commandHandler(client *Client, input string) Exit {
 		fmt.Fprintf(mw, "[%v][%v] executed commmand: /%v\n", getCurrentTime(), client.username, strings.Join(args, " "))
 		return command.Exec(client, args[1:])
 	} else {
-		sendMessage(client.conn, MESSAGE_HELP)
+		SendMessage(client.conn, MESSAGE_ERROR_HELP)
 	}
 	return Exit(false)
 }
 
 func initCommands() map[string]Command {
 	commands = map[string]Command{
-		"help": commandHelp,
-		"name": commandName,
-		"exit": commandExit,
+		"help":  commandHelp,
+		"room":  commandRoom,
+		"rooms": commandRooms,
+		"name":  commandName,
+		"exit":  commandExit,
 	}
 	return commands
 }

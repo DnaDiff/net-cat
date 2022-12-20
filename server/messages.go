@@ -10,9 +10,10 @@ import (
 const CHAT_FORMAT = "[%s][%s]: %s" // [date + time][username]: [message]
 
 type Room struct {
-	Name     string
-	Clients  []Client
-	Messages []string
+	ParentList map[string]*Room
+	Name       string
+	Clients    []Client
+	Messages   []string
 }
 
 // AddMessage prints the message to the terminal, logs the message and sends it to all clients.
@@ -21,14 +22,13 @@ func (room *Room) AddMessage(messageUsername, message string) {
 	mutex.Lock()
 	room.Messages = append(room.Messages, fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message))
 	mutex.Unlock()
-	fmt.Fprintln(mw, room.Clients)
 	for _, client := range room.Clients {
-		sendMessage(client.conn, fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message+"\n"))
+		SendMessage(client.conn, fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message+"\n"))
 	}
 }
 
 // It reads the incoming data from the connection, and returns it as a string
-func receiveMessage(conn net.Conn) string {
+func ReceiveMessage(conn net.Conn) string {
 	// Make a buffer to hold incoming data
 	buf := make([]byte, 1024)
 	// Read the incoming data into the buffer
@@ -39,11 +39,21 @@ func receiveMessage(conn net.Conn) string {
 		return "/exit"
 	}
 	// Remove client-side input line appended after pressing enter
-	sendMessage(conn, "\r\033[1A\033[2K")
-	return strings.ReplaceAll(string(buf[:rawMessage]), "\n", "")
+	SendMessage(conn, "\r\033[1A\033[2K")
+
+	var sb strings.Builder
+
+	for _, b := range buf[:rawMessage] {
+		if b < 32 || b > 126 {
+			continue
+		}
+		sb.WriteByte(b)
+	}
+
+	return sb.String()
 }
 
 // SendMessage writes the message to the connection.
-func sendMessage(conn net.Conn, message string) {
+func SendMessage(conn net.Conn, message string) {
 	conn.Write([]byte(message))
 }

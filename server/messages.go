@@ -9,16 +9,22 @@ import (
 
 const CHAT_FORMAT = "[%s][%s]: %s" // [date + time][username]: [message]
 
-// MessageQueue is a shared message queue among all clients.
-type MessageLog struct {
+type Room struct {
+	Name     string
+	Clients  []Client
 	Messages []string
-	count    int
 }
 
-// AddMessage adds a new message to the queue.
-func (q *MessageLog) AddMessage(message string) {
-	q.Messages = append(q.Messages, message)
-	q.count++
+// AddMessage prints the message to the terminal, logs the message and sends it to all clients.
+func (room *Room) AddMessage(messageUsername, message string) {
+	fmt.Fprintln(mw, fmt.Sprintf("[%v]"+CHAT_FORMAT, room.Name, getCurrentTime(), messageUsername, message))
+	mutex.Lock()
+	room.Messages = append(room.Messages, fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message))
+	mutex.Unlock()
+	fmt.Fprintln(mw, room.Clients)
+	for _, client := range room.Clients {
+		sendMessage(client.conn, fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message+"\n"))
+	}
 }
 
 // It reads the incoming data from the connection, and returns it as a string
@@ -32,6 +38,7 @@ func receiveMessage(conn net.Conn) string {
 	} else if err == io.EOF {
 		return "/exit"
 	}
+	// Remove client-side input line appended after pressing enter
 	sendMessage(conn, "\r\033[1A\033[2K")
 	return strings.ReplaceAll(string(buf[:rawMessage]), "\n", "")
 }
@@ -39,16 +46,4 @@ func receiveMessage(conn net.Conn) string {
 // SendMessage writes the message to the connection.
 func sendMessage(conn net.Conn, message string) {
 	conn.Write([]byte(message))
-}
-
-// BroadcastMessage prints the message to the terminal, logs the message and sends it to all clients.
-func (clientList *ClientList) BroadcastMessage(messageLog *MessageLog, messageUsername string, message string) {
-	fmt.Fprintln(mw, fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message))
-	mutex.Lock()
-	messageLog.AddMessage(fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message))
-	mutex.Unlock()
-	for _, client := range clientList.clients {
-		sendMessage(client.conn, fmt.Sprintf(CHAT_FORMAT, getCurrentTime(), messageUsername, message+"\n"))
-		// sendMessage(client.conn, client.username+"> ")
-	}
 }

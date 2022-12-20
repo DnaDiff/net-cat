@@ -49,7 +49,9 @@ Connect to the chat by opening a new **Unix-based** terminal window and run `nc 
 
 To view available commands, type `/help`
 
-To change your username, type `/name <new_name>`
+If you'd like to change your username, you can type `/name <new_name>`
+
+Join different chatrooms by typing `/room <room_name>`
 
 To exit the chat type `/exit`
 
@@ -58,6 +60,8 @@ Following the same examples above.
 - Example one `nc 17.6.126.345 8989`
 
 - Example two `nc 17.6.126.345 80`
+
+- Change room `/room #new-room`
 
 - Exit the program `/exit`
 
